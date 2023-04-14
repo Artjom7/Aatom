@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Koduleht{% endblock %}
+
+{% block head %}
+<style xmlns="">
+    html, body
+    {
+        height: 100%;
+    }
+    .text {
+        height: 100%;
+        width: 100%;
+        position: relative;
+        overflow:hidden;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+{% include "navbar.html" %}
+<div class="text">
+     <img class="img-fluid" src="/static/nrg_logo{% if andmed.vana_logo %}_vana{% endif %}.png" style="
+     width: 800px;
+     height: auto;
+     position: absolute;
+     top: 50%;
+     left: 50%;
+     opacity: 0.3;
+     transform: translate(-50%, -50%);
+    ">
+</div>
+{% endblock %}

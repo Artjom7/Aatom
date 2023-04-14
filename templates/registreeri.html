@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Registreeri{% endblock %}
+
+{% block body %}
+<div class="modal modal-signin d-block bg-secondary bg-gradient py-5" tabindex="-1" role="dialog" id="modalSignin">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content rounded-4 shadow">
+            <div class="modal-header p-5 pb-4 border-bottom-0">
+                <h1 class="fw-bold mb-0 fs-2">Registreeri</h1>
+            </div>
+            <div class="modal-body p-5 pt-0">
+                {% if error %}
+                <p style="color:red">{{ error }}</p>
+                {% endif %}
+                <form method="post">
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control rounded-3" id="floatingInput" name="email"
+                               placeholder="Email">
+                        <label for="floatingInput">Email</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control rounded-3" id="floatingPassword" name="parool"
+                               placeholder="Parool">
+                        <label for="floatingPassword">Parool</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control rounded-3" id="floatingPasswordConfirm"
+                               name="parool_confirm" placeholder="Kinnita parool">
+                        <label for="floatingPasswordConfirm">Kinnita parool</label>
+                    </div>
+                    <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary" type="submit">Registreeri</button>
+                </form>
+                <hr class="my-4">
+                <a href="{{ url_for('logisisse') }}">
+                    <button class="w-100 py-2 mb-2 btn btn-outline-primary rounded-3" type="button"> Logi sisse
+                    </button>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

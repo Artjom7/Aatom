@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Vestlus{% endblock %}
+
+{% block head %}
+<style>
+        body{margin-top:20px;}
+
+        .chat-messages {
+            display: flex;
+            flex-direction: column;
+            max-height: 70dvb;
+            min-height: 70dvb;
+            overflow-y: scroll
+        }
+
+        .chat-message-left {
+            margin-right: auto;
+            max-width: 90%;
+        }
+
+        .chat-message-right {
+            flex-direction: row-reverse;
+            margin-left: auto;
+            max-width: 90%;
+        }
+        .py-3 {
+            padding-top: 1rem!important;
+            padding-bottom: 1rem!important;
+        }
+        .px-4 {
+            padding-right: 1.5rem!important;
+            padding-left: 1.5rem!important;
+        }
+        .flex-grow-0 {
+            flex-grow: 0!important;
+        }
+        }
+</style>
+{% endblock %}
+
+{% block body %}
+{% include "navbar.html" %}
+<div class="container-fluid p-0 mt-3">
+    <div class="container">
+        <div class="card shadow">
+            <div class="row g-0">
+                <div class="col-0 col-lg-0 col-xl-0">
+
+                    <div class="py-2 px-4 border-bottom d-none d-lg-block">
+                        <div class="d-flex align-items-center py-1">
+                            <div class="position-relative">
+                            </div>
+                            <div class="flex-grow-1 pl-3">
+                                <strong>Kooli vestlus</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="position-relative">
+                        <div class="chat-messages p-4" id="messages-container"></div>
+                    </div>
+
+                    <form action="" method="POST">
+                        <div class="flex-grow-0 py-3 px-4 border-top">
+                            <div class="input-group">
+                                <input type="text" class="message form-control" placeholder="Saada sõnum kõikidele..." autofocus>
+                                <button type="submit" class="btn btn-primary">Saada</button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
+    <script src="/static/vestlus.js"></script>
+    <script>
+        initVestlus('{{ andmed.nimi }}', '{{ andmed.id }}');
+    </script>
+
+</div>
+{% endblock %}
+

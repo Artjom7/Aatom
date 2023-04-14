@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Märkmeid{% endblock %}
+
+{% block body %}
+<script>
+    var postitaja = '{{postitaja}}'
+    var filter = '{{filter}}'
+</script>
+<script src="/static/markmeid.js"></script>
+{% include "navbar.html" %}
+
+<style>
+    .ellipsis-title {
+       overflow: hidden;
+       display: -webkit-box;
+       -webkit-line-clamp: 2;
+       -webkit-box-orient: vertical;
+    }
+
+    .ellipsis-content {
+       overflow: hidden;
+       display: -webkit-box;
+       -webkit-line-clamp: 6;
+       -webkit-box-orient: vertical;
+    }
+</style>
+
+<div class="album py-4 bg-body-tertiary">
+    <div class="d-flex justify-content-center">
+        <div class="btn-group mx-2 mb-4">
+            <select class="form-select">
+                <option onclick="muutdaFilter(-1)" {% if -1== filter %}selected{% endif %}>Kõik</option>
+                {% for i in aine_tuubid%}
+                <option onclick="muutdaFilter({{loop.index0}})" {% if loop.index0== filter %}selected{% endif %}>{{i}}
+                </option>
+                {% endfor %}
+                <option onclick="muutdaFilter(-2)" {% if -2== filter %}selected{% endif %}>Muu</option>
+            </select>
+        </div>
+
+        <div class="btn-group me-2 mb-4">
+            <button name="filter" onclick="muudaPostitaja(0)"
+                    class="btn btn-secondary {% if postitaja == 0 %}active{% endif %}">Kõik
+            </button>
+            <button name="filter" onclick="muudaPostitaja(1)"
+                    class="btn btn-secondary {% if postitaja == 1 %}active{% endif %}">Minu
+            </button>
+        </div>
+
+        <div class="btn-group me-2 mb-4">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                + Uus postitus
+            </button>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-md-4 g-3" id="postitused"></div>
+    </div>
+</div>
+
+<!--<form>-->
+<form method="post" enctype=multipart/form-data action="{{ url_for('salvesta_postitus') }}">
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+         aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content shadow-lg">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Loo uus postitus</h1>
+                    <button type="reset" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="m-0 p-0 fw-bold" style="color: red;" id="error_postitus"></p>
+
+                    <label class="col-form-label">Pealkiri:</label>
+                    <input maxlength="100" type="text" name="pealkiri" id="postitus-pealkiri" class="form-control mb-2" required>
+
+                    <p class="text-secondary fs-6 fw-light ms-2">✱ Albumis on näha ainult ~30 esimest tähte</p>
+
+                    <label class="col-form-label">Aine tüüp:</label>
+                    <select class="form-select mb-3" name="aine" id="postitus-aine">
+                        <option value="-2" selected>Muu</option>
+                        {% for i in aine_tuubid%}
+                        <option value="{{loop.index0}}">{{i}}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label class="col-form-label">Sisu:</label>
+                    <textarea maxlength="5000" class="form-control mb-3" id="postitus-sisu" name="sisu"
+                              style="height: 100px"></textarea>
+
+                    <div class="input-group mb-3">
+                        <button class="btn btn-outline-secondary" type="button"
+                                onclick="document.getElementById('postitus-fail').click();">Lisa fail...
+                        </button>
+                        <input onchange="varskendaFailiTekst()" type="file" style="display:none;" id="postitus-fail"
+                               name="file" multiple>
+                        <input type="text" class="form-control" value="" id="postitus-faili-tekst"
+                               placeholder="Faili pole valitud" style="border-color: #5c636a;"
+                               onclick="document.getElementById('postitus-fail').click();" readonly>
+                    </div>
+
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" role="switch" name="privaatne"
+                               id="postitus-privaatne" checked>
+                        <label class="form-check-label" for="postitus-privaatne">
+                            Kas soovid teha selle postituse privaatseks?
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">Sulge</button>
+                    <button type="submit" class="btn btn-primary" onclick="luuaPostitus()">Loo postitus</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<!--</form>-->
+
+{% endblock %}

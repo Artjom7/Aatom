@@ -3,12 +3,14 @@ from flask import render_template, redirect, url_for, session, request
 from andmebaas import Kasutaja, db
 import json
 
+# Salvestab kasutaja klassi ja info
 @app.route("/salvesta_info_navbar", methods=['GET', 'POST'])
 def salvesta_info_navbar():
     andmed = json.loads(request.form['navbar_andmed'])
     kasutaja = Kasutaja.query.filter_by(email=session['email']).first()
     kasutaja.info = andmed["info"]
     kasutaja.lend = andmed["lend"]
+    # Tunniplaani lingi osa
     kasutaja.tunniplaan = {'12a': 'view.php?class=-16', '12b': 'view.php?class=-17', '12c': 'view.php?class=-18',
                            '11a': 'view.php?class=-19', '11b': 'view.php?class=-20', '11c': 'view.php?class=-21',
                            '10a': 'view.php?class=-22', '10b': 'view.php?class=-23', '10c': 'view.php?class=-24',
@@ -16,6 +18,7 @@ def salvesta_info_navbar():
     db.session.commit()
     return ''
 
+# Salvestab saidi välimuse sätted
 @app.route("/salvesta_info_seaded", methods=['GET', 'POST'])
 def salvesta_info_seaded():
     andmed = json.loads(request.form['seaded_andmed'])
@@ -25,10 +28,12 @@ def salvesta_info_seaded():
     db.session.commit()
     return ''
 
+# Värskendab lehe
 @app.route("/varskenda", methods=['GET', 'POST'])
 def varskenda():
     return ''
 
+# Saidi põhileht
 @app.route('/', methods=['GET', 'POST'])
 def index():
     # Ümbersuunamine
@@ -36,6 +41,7 @@ def index():
         return redirect(url_for('logisisse'))
     return render_template('index.html')
 
+# Saadab saidi välimuse sätted
 @app.route('/api/andmed')
 def saata_andmeid():
     kasutaja = Kasutaja.query.filter_by(email=session['email']).first()

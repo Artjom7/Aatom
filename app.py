@@ -42,15 +42,13 @@ aine_tuubid = [
 ]
 
 # Saadab vajaliku informatsiooni leheküljest
-host = socket.gethostbyname(socket.gethostname())
-port = "5000"
 @app.context_processor
 def inject():
-    if 'logged_in' not in session:
-        return {'host': host+':'+port}
-    kasutaja = Kasutaja.query.filter_by(email=session['email']).first()
-    return {'host': host+':'+port, 'andmed': kasutaja, 'aine_tuubid': aine_tuubid}
+    if 'logged_in' in session:
+        kasutaja = Kasutaja.query.filter_by(email=session['email']).first()
+        return {'andmed': kasutaja, 'aine_tuubid': aine_tuubid}
+    return ''
 
-# Saidi kodulehe url: http://localhost:5000/
+# Saidi kodulehe url antud link konsoolis
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=port)
+    socketio.run(app, debug=True, host=socket.gethostbyname(socket.gethostname()), port='5000')

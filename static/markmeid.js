@@ -3,6 +3,7 @@ if ( window.history.replaceState ) {
     window.history.replaceState( null, null, window.location.href );
 }
 
+// Küsib, mida kasutajale näidata, ja renderdab selle
 $.ajax({url: "/api/markmeid?postitaja=" + postitaja + "&filter=" + filter, success: function(sisend){
     tabel_dokument = document.getElementById("postitused").innerHTML
     for (i in sisend) {
@@ -32,7 +33,7 @@ $.ajax({url: "/api/markmeid?postitaja=" + postitaja + "&filter=" + filter, succe
                 <div class="card shadow">
                     <div class="card-body">
                         <h5 class="ellipsis-title pb-1 card-title fw-semibold">${i.pealkiri}</h5>
-                        <div class="overflow-scroll pb-3">
+                        <div class="overflow-auto pb-3">
                             <span class="badge rounded-pill text-bg-secondary">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 17 17">
                                     <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path>
@@ -52,7 +53,7 @@ $.ajax({url: "/api/markmeid?postitaja=" + postitaja + "&filter=" + filter, succe
                             <a href="/markmik/${i.id}" type="button" class="btn btn-sm btn-outline-primary">
                                 Vaata
                             </a>
-                            <div class="overflow-scroll ms-2">
+                            <div class="overflow-auto ms-2">
                                 ${privaatne}
                                 ${faili}
                             </div>
@@ -64,29 +65,34 @@ $.ajax({url: "/api/markmeid?postitaja=" + postitaja + "&filter=" + filter, succe
     }
 }});
 
+// Muudab tunni teemasid, mida kasutaja näeb
 function muutdaFilter(filter) {
     var url = new URL(window.location.href);
     url.searchParams.set('filter', filter);
     window.location.href = url;
 }
 
+// Muudab, kelle postitusi näidata
 function muudaPostitaja(postitaja) {
     var url = new URL(window.location.href);
     url.searchParams.set('postitaja', postitaja);
     window.location.href = url;
 }
 
+// Kontrollib, kas kõik vajalikud väljad on õigesti täidetud
 function varskendaFailiTekst() {
     var fail_form = document.getElementById('postitus-fail')
     var failid = fail_form.files
     var faili_tekst = document.getElementById('postitus-faili-tekst')
 
+    // Kustutab veateate
     document.getElementById('error_postitus').innerHTML = '';
     suurus = 0
     for (var i = 0; i < failid.length; i++) {
         suurus += failid[i].size;
     }
 
+    // Failid mida saab laadida üles (peab muuta ka failid markmeid.py)
     lubatud_failid = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'xlsx', 'docx', 'pptx'];
 
     var labis_testi = true
@@ -94,6 +100,7 @@ function varskendaFailiTekst() {
         labis_testi &= lubatud_failid.includes(failid[i].name.split('.').pop())
     }
 
+    // Tagastab vea, kui midagi on valesti
     if (failid.length > 10) {
         document.getElementById('error_postitus').innerHTML = 'Maksimaalselt 10 faili!';
         faili_tekst.value = '';
@@ -117,9 +124,9 @@ function varskendaFailiTekst() {
     }
 }
 
+// Tagastab viga kui postitusel pole pealkirja
 function luuaPostitus() {
     var pealkiri = document.getElementById('postitus-pealkiri').value
-    var failid = document.getElementById('postitus-fail').files
 
     if (pealkiri == '') {
         document.getElementById('error_postitus').innerHTML = 'Pealkiri on kohustuslik!'

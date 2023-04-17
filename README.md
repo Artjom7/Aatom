@@ -4,7 +4,7 @@
 
 ### Mida on vaja teha et käivitada programmi:
 
-1. Tehke uus projekt PyCharmis, kasutades Python 3.9
+1. Tehke uus projekt PyCharmis, kasutades Python 3.9 Intepreter
 2. Pange kõik failid sinna
 3. Avage Terminal aken ja käivitage "pip install -r requirements.txt"
 4. Kui koodiredaktor palub installida veel midage lisaks, tehke seda

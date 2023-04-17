@@ -28,6 +28,7 @@ function initVestlus(minuNimi, kasutaja_id) {
                 </div>
             </div>
         `);
+        $(function () {$('[data-bs-toggle="tooltip"]').tooltip()})
         if (onMinuSonum) {
             konteiner.scrollTop(konteiner[0].scrollHeight);
         }
@@ -42,10 +43,11 @@ function initVestlus(minuNimi, kasutaja_id) {
         if (user_input.length===0) {
             return;
         }
+        anonuumne = document.getElementById('anonuumne').checked
         // Saadab kasutaja sõnumi
         socket.emit( 'event', {
           id : kasutaja_id,
-          user_name : minuNimi,
+          user_name : anonuumne ? 'Anonüümne' : minuNimi,
           message : user_input,
           date: kellString(new Date()),
         } )

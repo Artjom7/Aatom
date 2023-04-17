@@ -23,22 +23,34 @@ def kysimustik():
     for tulemus in ab_kusimustik:
         haaled_id = json.loads(tulemus[0].haalejad_id)
         valikud = json.loads(tulemus[0].valikud)
-        haaled_arv = [0]*len(valikud)
+        haaled = [0]*len(valikud)
+        haaled_arv = 0
         # Loendab haali
-        for i in haaled_id.values():
-            if i != -1:
-                haaled_arv[int(i)] += 1
+        if tulemus[0].mitmivalik:
+            for i in haaled_id.values():
+                if i != -1:
+                    haaled_arv += 1
+                    for j in range(len(i)):
+                        haaled[int(j)] += i[j]
+        else:
+            for i in haaled_id.values():
+                if i != -1:
+                    haaled_arv += 1
+                    haaled[int(i)] += 1
         kasutaja_nimi = ('Anonüümne' if tulemus[0].anonuumne and tulemus[1].id != kasutaja_id else \
             (tulemus[1].nimi + ' ' + tulemus[1].lend))
+        haal = haaled_id[str(kasutaja_id)] if str(kasutaja_id) in haaled_id.keys() else -1
         tulemused.append({
             "kasutaja": kasutaja_nimi,
             "pealkiri": tulemus[0].pealkiri,
             "info": tulemus[0].info,
             "valikud": valikud,
-            "haal": haaled_id[str(kasutaja_id)] if str(kasutaja_id) in haaled_id.keys() else -1,
-            "haaled": haaled_arv,
+            "haal": haal,
+            "haaled": haaled,
+            "haaled_arv": haaled_arv,
             "kuupaev": tulemus[0].kuupaev,
             "umberhaalimine": tulemus[0].umberhaalimine,
+            "mitmivalik": tulemus[0].mitmivalik,
             "id": tulemus[0].id
         })
     # Saadab andmed JSON formaadis
@@ -69,10 +81,12 @@ def salvesta_info_kusitlus():
     # Kuupäev
     def kokkusobiv(a):
         return a.replace('<', '&lt;').replace('>', '&gt;')
+
     kuupaev = datetime.datetime.now().strftime('%d-%m-%Y %H:%M')
     valikud = json.dumps(andmed['valikud'])
     db.session.add(Kusimustik(autor_id=autor_id, pealkiri=kokkusobiv(andmed['pealkiri']), info=kokkusobiv(andmed['info']),
-                              valikud=kokkusobiv(valikud), anonuumne=andmed['anonuumsus'], kuupaev=kuupaev, umberhaalimine=andmed['umberhaalimine']))
+                              valikud=kokkusobiv(valikud), anonuumne=andmed['anonuumsus'], kuupaev=kuupaev,
+                              umberhaalimine=andmed['umberhaalimine'], mitmivalik=andmed['haale_tuup']))
     db.session.commit()
     return ''
 

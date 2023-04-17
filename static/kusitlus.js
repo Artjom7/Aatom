@@ -3,11 +3,6 @@ if ( window.history.replaceState ) {
     window.history.replaceState( null, null, window.location.href );
 }
 
-// On vaja, et kasutaja infokast töötaks
-//$(function () {
-//  $('[data-bs-toggle="popover"]').popover()
-//})
-
 var eelmised_haaled = {}
 var tulemus
 // Kus lehekülg laadib, siis renderdakse kõik küsitlused
@@ -15,13 +10,17 @@ $.ajax({url: "/api/kysimustik?sakk="+sakk, success: function(sisend){
     tulemus = sisend
     for (var i = tulemus.length-1; i >= 0; i--) {
         var andmed_kusimus = tulemus[i]
-        eelmised_haaled[i] = andmed_kusimus.haal
+        if (!andmed_kusimus.mitmivalik) {
+            eelmised_haaled[i] = andmed_kusimus.haal
+        }
         var lulitatud = !andmed_kusimus.umberhaalimine && andmed_kusimus.haal != -1 ? 'disabled' : ''
-        var haali = Object.values(andmed_kusimus.haaled).reduce((osalineSum, a) => osalineSum + a, 0);
+        var erineva_haali = Object.values(andmed_kusimus.haaled).reduce((osalineSum, a) => osalineSum + a, 0)
+        var haali = andmed_kusimus.haaled_arv;
         var valikud_html = ''
+        var haale_tuup = andmed_kusimus.mitmivalik ? 'checkbox' : 'radio'
         for (var j = 0; j < andmed_kusimus.valikud.length; j++) {
-            var valitud_automaatselt = andmed_kusimus.haal == j ? 'checked' : ''
-            var protsent =  parseFloat((haali > 0 ? (andmed_kusimus.haaled[j] / haali * 100) : 0).toFixed(1))
+            var valitud_automaatselt = (andmed_kusimus.mitmivalik ? andmed_kusimus.haal[j] == 1 : andmed_kusimus.haal == j) ? 'checked' : ''
+            var protsent =  parseFloat((haali > 0 ? (andmed_kusimus.haaled[j] / erineva_haali * 100) : 0).toFixed(1))
             valikud_html += `
                 <div class="mt-4">
                     <label style="width: 100%;
@@ -35,7 +34,7 @@ $.ajax({url: "/api/kysimustik?sakk="+sakk, success: function(sisend){
                         </span>
                         <br>
                         <div style="display: flex; align-items: center;">
-                            <input ${lulitatud} ${valitud_automaatselt} onclick="kontrolliVastus(${i+1}, ${j})" type="radio" value="${j}" name="radio${i+1}" class="form-check-input me-2 mt-0" autocomplete="off">
+                            <input ${lulitatud} ${valitud_automaatselt} onclick="kontrolliVastus(${i+1}, ${j})" type="${haale_tuup}" value="${j}" id="vormi-id-${i+1}" name="${haale_tuup}${i+1}" class="form-check-input me-2 mt-0" autocomplete="off">
                             <div style="flex: 1 1 auto; height: 10px" class="progress" role="progressbar">
                                 <div name="edenemisriba${i+1}" class="progress-bar" style="width: ${protsent}%"></div>
                             </div>
@@ -45,7 +44,7 @@ $.ajax({url: "/api/kysimustik?sakk="+sakk, success: function(sisend){
             `
         }
         document.getElementById("kusitluse-array").innerHTML += `
-            <div id="vorm${i+1}" class="container d-flex justify-content-center mb-4">
+            <div id="vorm${i+1}" name="${haale_tuup}" class="container d-flex justify-content-center mb-4">
                 <div class="card col-md-6 p-3 rounded-3 shadow" style="width: 47rem;">
                     <div class="card-body">
                         <h3 class="card-text"><b>${andmed_kusimus.pealkiri}</b></h3>
@@ -84,9 +83,22 @@ $.ajax({url: "/api/kysimustik?sakk="+sakk, success: function(sisend){
 var valikud = 2;
 // Salvestab kasutaja vastuse
 function saataVastus(id) {
-    var kas_on_valitud = document.querySelectorAll("input[name=radio" + id + "]:checked").length > 0;
-    var haal_valik = kas_on_valitud ? document.querySelector("input[name=radio" + id + "]:checked").value : -1
-    var on_muutnud = haal_valik != tulemus[id-1].haal
+    if (document.getElementById("vorm"+id).getAttribute("name") == 'radio') {
+        var kas_on_valitud = document.querySelectorAll("input[name=radio" + id + "]:checked").length > 0;
+        var haal_valik = kas_on_valitud ? document.querySelector("input[name=radio" + id + "]:checked").value : -1
+        var on_muutnud = haal_valik != tulemus[id-1].haal
+    } else {
+        var kas_on_valitud = document.querySelectorAll("input[name=checkbox" + id + "]:checked").length > 0;
+        if (kas_on_valitud) {
+            haal_valik = []
+            for (var i of document.getElementsByName("checkbox" + id)) {
+                haal_valik.push(+i.checked)
+            }
+        } else {
+            haal_valik = -1
+        }
+        var on_muutnud = JSON.stringify(haal_valik) != JSON.stringify(tulemus[id-1].haal)
+    }
 
     if (on_muutnud) {
         var andmed_saata = {
@@ -102,37 +114,63 @@ function saataVastus(id) {
             window.location.reload();
         });
     }
+
 }
 // Animeerib edenemisriba
 function kontrolliVastus(id, nr) {
-    var oli_valitud_enne = eelmised_haaled[id-1]
-    var koik_objektid = document.querySelectorAll("input[name=radio" + id + "]")
+    var koik_objektid = document.querySelectorAll("input[id=vormi-id-" + id + "]")
     var vajutatud_objekt = koik_objektid[nr]
 
-    if (oli_valitud_enne == nr) {
-        eelmised_haaled[id-1] = -1
-        vajutatud_objekt.checked = false
-    } else {
-        eelmised_haaled[id-1] = nr
+    // Raadionupu funktsionaalsus
+    if (document.getElementById("vorm"+id).getAttribute("name") == 'radio') {
+        var oli_valitud_enne = eelmised_haaled[id-1]
+        if (oli_valitud_enne == nr) {
+            eelmised_haaled[id-1] = -1
+            vajutatud_objekt.checked = false
+        } else {
+            eelmised_haaled[id-1] = nr
+        }
     }
 
-    var praegu_valitud = vajutatud_objekt.checked ? vajutatud_objekt.value : -1
-    var kas_on_valitud = (praegu_valitud != -1)
+
     var koik_haaled = tulemus[id-1].haaled
     var protsent_html = document.querySelectorAll('p[name=protsent' + id + ']')
     var edenemisriba_html = document.querySelectorAll('div[name=edenemisriba' + id + ']')
     var eelmine_tulemus = tulemus[id-1].haal
 
-    for (var i = 0; i < koik_objektid.length; i++) {
-        var haali = Object.values(koik_haaled).reduce((osalineSum, a) => osalineSum + a, 0);
-        var protsent = (koik_haaled[i] + (praegu_valitud == i) - (eelmine_tulemus == i))
-            / (haali + kas_on_valitud - (eelmine_tulemus != -1)) * 100
-        protsent = isNaN(protsent) ? 0 : parseFloat(protsent.toFixed(1))
+    // Arvutab protsendi erinevalt, sõltuvalt sellest, mis tüüpi see on (radio / checkbox ehk raadionupp / märkeruut)
+    if (document.getElementById("vorm"+id).getAttribute("name") == 'radio') {
+        var praegu_valitud = vajutatud_objekt.checked ? vajutatud_objekt.value : -1
+        var kas_on_valitud = (praegu_valitud != -1)
+        for (var i = 0; i < koik_objektid.length; i++) {
+            var haali = Object.values(koik_haaled).reduce((osalineSum, a) => osalineSum + a, 0);
+            var protsent = (koik_haaled[i] + (praegu_valitud == i) - (eelmine_tulemus == i))
+                / (haali + kas_on_valitud - (eelmine_tulemus != -1)) * 100
+            protsent = isNaN(protsent) ? 0 : parseFloat(protsent.toFixed(1))
 
-        protsent_html[i].innerText = protsent + '%'
-        edenemisriba_html[i].style = 'width: '+protsent+'%'
+            protsent_html[i].innerText = protsent + '%'
+            edenemisriba_html[i].style = 'width: '+protsent+'%'
+        }
+    } else {
+        var praegu_valitud = document.getElementsByName("checkbox" + id)
+        var kas_on_valitud = (praegu_valitud != -1)
+        var erinevad_haaled_arv = koik_haaled.reduce((osalineSum, a) => osalineSum + a, 0);
+        var eelneva_tilemuse_sum = eelmine_tulemus != -1 ? eelmine_tulemus.reduce((osalineSum, a) => osalineSum + a, 0) : 0;
+        var praegu_valitud_sum = 0
+        for (var i of praegu_valitud) {
+            praegu_valitud_sum += i.checked
+        }
+
+        for (var i = 0; i < koik_objektid.length; i++) {
+            var protsent = (koik_haaled[i] - (eelmine_tulemus == -1 ? 0 : eelmine_tulemus[i]) + praegu_valitud[i].checked) /
+                (erinevad_haaled_arv + praegu_valitud_sum - eelneva_tilemuse_sum) * 100
+            protsent = isNaN(protsent) ? 0 : parseFloat(protsent.toFixed(1))
+
+
+            protsent_html[i].innerText = protsent + '%'
+            edenemisriba_html[i].style = 'width: '+protsent+'%'
+        }
     }
-
 }
 
 // Paneb akna kinni ja kustutab salvestamata andmeid
@@ -179,12 +217,14 @@ function luuaKusimustik() {
         return;
     }
 
+    // Koostab faili mida tuleb saata
     var andmed_saata = {
         pealkiri: document.getElementById('pealkiri').value,
         info: document.getElementById('info').value,
         valikud: [],
         anonuumsus: document.getElementById('markeruutAnonuumne').checked,
-        umberhaalimine: document.getElementById('markeruutUmberhaalimine').checked
+        umberhaalimine: document.getElementById('markeruutUmberhaalimine').checked,
+        haale_tuup: document.getElementById('markeruutHaaleTuup2').checked
     }
 
      for (var i = 1; i <= valikud; i++) {

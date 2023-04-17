@@ -10,27 +10,30 @@ import datetime
 import json
 import os
 
+# Failid mida saab laadida üles (peab muuta ka failid markmeid.js)
 lubatud_failid = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'xlsx', 'docx', 'pptx'}
 
+# Sorteerimise ja filtreerimise vaikeseaded
 postitaja, filtreerimine = 0, -1
 
+# Võtab salvestatud postitused andmebaasist ja saadab ainult kuvamiseks vajalikku info
 @app.route('/api/markmeid')
 def markmik_ajax():
     if 'logged_in' not in session:
         return redirect(url_for('logisisse'))
     kasutaja_id = Kasutaja.query.filter_by(email=session['email']).first().id
     postitaja, filtreerimine = int(request.args.get('postitaja')), int(request.args.get('filter'))
+    # Sortimine
     markmikud = db.session.query(Markmeid).order_by(Markmeid.id.desc())
     andmed_markmik = []
-
+    # Filtreerimine
     if filtreerimine != -1:
         markmikud = markmikud.filter(Markmeid.aine == filtreerimine)
-
     if postitaja == 1:
         markmikud = markmikud.filter(Markmeid.autor_id == kasutaja_id).all()
     else:
         markmikud = markmikud.filter(or_(Markmeid.privaatne == False, Markmeid.autor_id == kasutaja_id)).all()
-
+    # Andmete sõnastiku koostamine
     for i in markmikud:
         failid_len = str(len(json.loads(i.failid_id)))
         aine = (aine_tuubid[int(i.aine)] if i.aine != '-2' else 'Muu')
@@ -40,8 +43,7 @@ def markmik_ajax():
                 'failid_len': failid_len, 'pealkiri': i.pealkiri, 'kuupaev': i.kuupaev})
     return jsonify(andmed_markmik)
 
-
-# Märkmeid
+# Märkmeid koduleht
 @app.route('/markmik', methods=['GET', 'POST'])
 def markmik():
     if 'logged_in' not in session:
@@ -56,6 +58,7 @@ def markmik_postitus(posti_id: int):
         return redirect(url_for('logisisse'))
     kasutaja_id = Kasutaja.query.filter_by(email=session['email']).first().id
     postitus = db.session.query(Markmeid).filter_by(id=posti_id).first()
+    # Kontrollib, kas kasutajal on lubatud postitust näha
     if not (postitus.autor_id == kasutaja_id or not postitus.privaatne):
         return render_template('postitus.html', lubatud=False)
     pealkiri = postitus.pealkiri.replace('&lt;', '<').replace('&gt;', '>')
@@ -100,6 +103,7 @@ def salvesta_postitus():
         return redirect(url_for('markmik', postitaja=postitaja, filter=filtreerimine))
     return redirect(url_for('index'))
 
+# Laadib alla faili, mille kasutaja valis
 @app.route('/laealla/<faili_id>')
 def lae_alla_fail(faili_id):
     if 'logged_in' not in session:

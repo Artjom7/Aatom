@@ -36,6 +36,7 @@ class Kusimustik(db.Model):
     anonuumne = db.Column(db.Boolean, default=False)
     kuupaev = db.Column(db.String, default='00-00-0000 00:00')
     umberhaalimine = db.Column(db.Boolean, default=False)
+    mitmivalik = db.Column(db.Boolean, default=False)
 
 # Märkmeid tabel
 class Markmeid(db.Model):

@@ -11,7 +11,7 @@ var konteiner = $('#messages-container');
 // Võtab vastu ja saadab sõnumeid
 function initVestlus(minuNimi, kasutaja_id) {
     saitOnLaadinud()
-    // Renderdab sõnumi andmebaasist või kui keegi saadab uue
+    // Kuvab sõnumi andmebaasist või kui keegi saadab uue
     function renderdaSonum(msg) {
         var onMinuSonum = msg.id === kasutaja_id;
         // Koostab HTML koodi (sõnum)

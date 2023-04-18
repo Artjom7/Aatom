@@ -1,9 +1,9 @@
-// <form> pole vaja salvestada, et värskendada lehe
+// Kinnitab et vorm pole vaja salvestada
 if ( window.history.replaceState ) {
     window.history.replaceState( null, null, window.location.href );
 }
 
-// Küsib, mida kasutajale näidata, ja renderdab selle
+// Küsib, mida kasutajale näidata, ja kuvab selle
 $.ajax({url: "/api/markmeid?postitaja=" + postitaja + "&filter=" + filter, success: function(sisend){
     tabel_dokument = document.getElementById("postitused").innerHTML
     for (i in sisend) {
@@ -65,7 +65,7 @@ $.ajax({url: "/api/markmeid?postitaja=" + postitaja + "&filter=" + filter, succe
     }
 }});
 
-// Muudab tunni teemasid, mida kasutaja näeb
+// Muudab õppe ained, mida kasutaja näeb
 function muutdaFilter(filter) {
     var url = new URL(window.location.href);
     url.searchParams.set('filter', filter);

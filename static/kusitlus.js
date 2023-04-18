@@ -5,7 +5,7 @@ if ( window.history.replaceState ) {
 
 var eelmised_haaled = {}
 var tulemus
-// Kus lehekülg laadib, siis renderdakse kõik küsitlused
+// Kus lehekülg laadib, siis kuvatakse kõik küsitlused
 $.ajax({url: "/api/kysimustik?sakk="+sakk, success: function(sisend){
     tulemus = sisend
     for (var i = tulemus.length-1; i >= 0; i--) {

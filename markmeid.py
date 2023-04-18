@@ -13,7 +13,7 @@ import os
 # Failid mida saab laadida üles (peab muuta ka failid markmeid.js)
 lubatud_failid = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'xlsx', 'docx', 'pptx'}
 
-# Sorteerimise ja filtreerimise vaikeseaded
+# Filtreerimise vaikeseaded (saidi url'is olevad numbrid viidavad sellele, millised postituse tüübid kasutaja peab näha)
 postitaja, filtreerimine = 0, -1
 
 # Võtab salvestatud postitused andmebaasist ja saadab ainult kuvamiseks vajalikku info
@@ -43,7 +43,7 @@ def markmik_ajax():
                 'failid_len': failid_len, 'pealkiri': i.pealkiri, 'kuupaev': i.kuupaev})
     return jsonify(andmed_markmik)
 
-# Märkmeid koduleht
+# Märkmeid lehekülg
 @app.route('/markmik', methods=['GET', 'POST'])
 def markmik():
     if 'logged_in' not in session:

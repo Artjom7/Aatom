@@ -57,7 +57,7 @@ def kysimustik():
     return jsonify(tulemused)
 
 
-# Renderdab küsitluse lehekülg
+# Kuvab küsitluse lehekülg
 def renderi_kusitlus(sakk='0'):
     return render_template('kusitlus.html', sakk=sakk)
 

@@ -8,10 +8,13 @@
 2. Pange kõik failid sinna
 3. Avage Terminal aken ja käivitage "pip install -r requirements.txt"
 4. Kui koodiredaktor palub installida veel midage lisaks, tehke seda
-5. Käivitage app.py fail
+5. Käivitage app.py fail (Kui väljastab vea, siis vaadake punkt *8)
 6. Avage brauser ja minge aadressile http://localhost:5000/
-7. Eelistage registreerimiseks kooli email ja seejärel logige sellega sisse (@opilased.nrg.edu.ee või @nrg.edu.ee)
-* Tegelikult võib kasutada ükskõik milline email
+7. Eelistage registreerimiseks kooli email ja seejärel logige sellega sisse (@opilased.nrg.edu.ee või @nrg.edu.ee) *Tegelikult võib kasutada ükskõik milline email
+
+*8. https://www.jetbrains.com/help/pycharm/package-installation-issues.html#terminal 
+    https://www.jetbrains.com/help/pycharm/creating-virtual-environment.html#python_create_virtual_env
+    Kui se ei tööta siis saab manuaalselt alla laadida kõik vajalikud moodulid: ctrl + alt + S -> Python Interpreter: Python 3.9 -> "+" Pluss nupp (alt+insert) -> kirjutage mooduli nimi (nt. flask-sqlalchemy) ja vajutage "Install Package".
 
 
 ### Kasutatud moodulid (neid võib leida ka failist "requirements.txt"):
